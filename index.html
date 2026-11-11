@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quotex বাংলা AI Trading Assistant</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#131f32;--muted:#9fb0c7;--line:#26364e;--green:#21c58e;--red:#ff667a;--yellow:#f5c451}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#08111f,#101d30);color:#edf4ff;font:16px system-ui,-apple-system,"Noto Sans Bengali",sans-serif}
+main{max-width:980px;margin:auto;padding:22px 16px 48px}.hero{padding:22px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(120deg,#172a43,#111b2c)}
+h1{font-size:clamp(24px,5vw,36px);margin:0 0 8px}.sub{color:var(--muted);line-height:1.6}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-top:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px;margin-top:14px}
+h2{font-size:19px;margin:0 0 12px}.btn{border:0;border-radius:11px;padding:12px 15px;background:#2563eb;color:white;font-weight:700;font-size:15px;cursor:pointer}.btn.secondary{background:#26364e}.btn.stop{background:#9c3444}.btn:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.screen{width:100%;min-height:170px;max-height:430px;background:#080d16;border:1px dashed #425571;border-radius:12px;display:grid;place-items:center;overflow:hidden;color:var(--muted);text-align:center}
+video{width:100%;max-height:430px;object-fit:contain;display:none}.note{font-size:13px;color:var(--muted);line-height:1.6}
+label{display:block;color:#c5d2e4;margin:12px 0 6px}input,select{width:100%;padding:11px;border-radius:10px;background:#0c1728;border:1px solid #33465f;color:white;font-size:16px}
+.signal{font-size:28px;font-weight:800;padding:18px;border-radius:13px;text-align:center;background:#202d40}.up{color:var(--green);border:1px solid #236f5b}.down{color:var(--red);border:1px solid #82404d}.wait{color:var(--yellow);border:1px solid #76602e}
+.small{font-size:12px;color:var(--muted)}.warn{border-left:4px solid var(--yellow);padding:10px 13px;background:#2b2618;border-radius:8px;color:#f5dfaa;font-size:13px;line-height:1.6}
+footer{margin-top:18px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body><main>
+<section class="hero">
+<h1>Quotex বাংলা AI Trading Assistant</h1>
+<div class="sub">ব্রাউজারভিত্তিক সহকারী · স্ক্রিন শেয়ার প্রিভিউ · বাংলা UP / DOWN / WAIT · ঝুঁকি নিয়ন্ত্রণ</div>
+</section>
+<div class="warn" style="margin-top:14px"><b>গুরুত্বপূর্ণ:</b> এটি পরীক্ষামূলক সহায়ক টুল। স্ক্রিন শেয়ার দেখা যায়, কিন্তু এই অফলাইন সংস্করণ নিজে ছবির চার্ট বুঝে AI ভবিষ্যদ্বাণী করে না। নিচের RSI/MACD/Trend আপনাকে চার্ট দেখে দিতে হবে। কোনো সিগন্যাল নিশ্চিত লাভ নয়। Quotex-এ এটি নিজে কোনো ট্রেড করবে না।</div>
+<div class="card">
+<h2>১. Quotex স্ক্রিন শেয়ার</h2>
+<p class="note">Quotex ওয়েব টার্মিনাল অন্য ট্যাবে খুলে ফিরে এসে “স্ক্রিন শেয়ার শুরু” চাপুন। ব্রাউজার থেকে Quotex ট্যাব নির্বাচন করুন।</p>
+<div class="actions">
+<button class="btn" id="start">স্ক্রিন শেয়ার শুরু</button><button class="btn stop" id="stop" disabled>শেয়ার বন্ধ</button>
+</div>
+<div class="screen" id="screenBox" style="margin-top:12px"><span id="placeholder">শেয়ার করা স্ক্রিন এখানে দেখা যাবে</span><video id="preview" autoplay muted playsinline></video></div>
+<p class="small" id="screenStatus">স্ক্রিন শেয়ার এখন বন্ধ।</p>
+</div>
+<div class="grid">
+<section class="card">
+<h2>২. চার্টের তথ্য দিন</h2>
+<label for="rsi">RSI (0–100)</label><input id="rsi" type="number" min="0" max="100" step="0.1" placeholder="যেমন 42">
+<label for="trend">সর্বশেষ ট্রেন্ড</label><select id="trend"><option value="flat">Sideways / স্পষ্ট নয়</option><option value="up">Uptrend</option><option value="down">Downtrend</option></select>
+<label for="macd">MACD</label><select id="macd"><option value="neutral">Neutral / নিশ্চিত নয়</option><option value="bull">Bullish crossover / উপরে</option><option value="bear">Bearish crossover / নিচে</option></select>
+<label for="level">দাম কোথায়?</label><select id="level"><option value="none">Support/Resistance-এর কাছে নয়</option><option value="support">Support-এর কাছে</option><option value="resistance">Resistance-এর কাছে</option></select>
+<label for="expiry">আপনার দেখা টাইমফ্রেম</label><select id="expiry"><option>1 মিনিট</option><option>5 মিনিট</option><option>15 মিনিট</option><option>অন্যান্য</option></select>
+<button class="btn" id="analyze" style="width:100%;margin-top:16px">বাংলায় বিশ্লেষণ করুন</button>
+</section>
+<section class="card">
+<h2>৩. সিগন্যাল ও কারণ</h2>
+<div id="signal" class="signal wait">WAIT · অপেক্ষা করুন</div>
+<p id="reason" class="note">চার্টের তথ্য দিয়ে বিশ্লেষণ শুরু করুন।</p>
+<div class="warn">সিগন্যাল কেবল নিয়মভিত্তিক শিক্ষামূলক স্কোর। এটি AI vision, লাইভ মার্কেট ডেটা বা জয়ের সম্ভাবনার হিসাব নয়। দুর্বল/বিরোধী সংকেতে WAIT বেছে নিন।</div>
+</section>
+</div>
+<section class="card">
+<h2>৪. ঝুঁকি ব্যবস্থাপনা ও ডেমো লগ</h2>
+<div class="grid">
+<div><label for="balance">ডেমো ব্যালেন্স (USD)</label><input id="balance" type="number" min="1" max="300" value="100"></div>
+<div><label for="risk">প্রতি ট্রেডে ঝুঁকি (%)</label><input id="risk" type="number" min="0.1" max="1" step="0.1" value="0.5"></div>
+</div>
+<p id="stake" class="note">প্রস্তাবিত সর্বোচ্চ stake: $0.50 (শুধু ঝুঁকি-সীমার উদাহরণ; ন্যূনতম stake/পেআউট আলাদা হতে পারে)।</p>
+<div class="actions"><button class="btn secondary" id="log">বর্তমান সিগন্যাল লগ করুন</button><button class="btn secondary" id="clear">লগ মুছুন</button></div>
+<p id="logCount" class="note">লগে 0টি সিগন্যাল</p><div id="logs" class="note"></div>
+</section>
+<footer>গোপনীয়তা: স্ক্রিন ভিডিও এই পেজে লোকালি প্রিভিউ হয়; সার্ভারে পাঠানো বা সংরক্ষণ করা হয় না। ট্যাব/স্ক্রিন শেয়ার ব্রাউজারের অনুমতি সাপেক্ষে। আর্থিক পরামর্শ নয়। OTC/স্বল্প-মেয়াদি binary options-এ দ্রুত ও উল্লেখযোগ্য ক্ষতির ঝুঁকি থাকে।</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);let stream=null,lastSignal="WAIT",history=[];
+function stopShare(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}$("preview").srcObject=null;$("preview").style.display="none";$("placeholder").style.display="block";$("start").disabled=false;$("stop").disabled=true;$("screenStatus").textContent="স্ক্রিন শেয়ার বন্ধ।"}
+$("start").onclick=async()=>{try{stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:10},audio:false});$("preview").srcObject=stream;$("preview").style.display="block";$("placeholder").style.display="none";$("start").disabled=true;$("stop").disabled=false;$("screenStatus").textContent="স্ক্রিন শেয়ার চলছে।";stream.getVideoTracks()[0].addEventListener("ended",stopShare);}catch(e){$("screenStatus").textContent="অনুমতি পাওয়া যায়নি: "+e.message+"। HTTPS বা localhost ব্যবহার করুন।";}};
+$("stop").onclick=stopShare;
+function stake(){let b=Number($("balance").value),r=Number($("risk").value);if(!Number.isFinite(b)||!Number.isFinite(r)||b<=0||r<=0){$("stake").textContent="ব্যালেন্স ও ঝুঁকির মান ঠিক করুন।";return;}let v=b*r/100;$("stake").textContent="প্রতি ট্রেডে ঝুঁকির সীমা: $"+v.toFixed(2)+". ব্রোকারের minimum stake বেশি হলে ট্রেড বাদ দিন; stake বাড়াবেন না।";}
+$("balance").oninput=stake;$("risk").oninput=stake;stake();
+$("analyze").onclick=()=>{let r=Number($("rsi").value),t=$("trend").value,m=$("macd").value,l=$("level").value;if($("rsi").value===""||!Number.isFinite(r)||r<0||r>100){$("signal").className="signal wait";$("signal").textContent="WAIT · RSI দিন";$("reason").textContent="RSI 0–100-এর মধ্যে লিখুন।";lastSignal="WAIT";return;}
+let score=0,why=[];if(t==="up"){score+=2;why.push("ট্রেন্ড ঊর্ধ্বমুখী");}else if(t==="down"){score-=2;why.push("ট্রেন্ড নিম্নমুখী");}else why.push("ট্রেন্ড স্পষ্ট নয়");
+if(m==="bull"){score+=2;why.push("MACD bullish");}else if(m==="bear"){score-=2;why.push("MACD bearish");}else why.push("MACD নিরপেক্ষ");
+if(r<30&&l==="support"){score+=1;why.push("RSI কম ও Support-এর কাছে");}if(r>70&&l==="resistance"){score-=1;why.push("RSI বেশি ও Resistance-এর কাছে");}
+if(r>=45&&r<=55){score=0;why.push("RSI মাঝামাঝি");}
+let sig=score>=4?"UP":score<=-4?"DOWN":"WAIT";lastSignal=sig;$("signal").className="signal "+(sig==="UP"?"up":sig==="DOWN"?"down":"wait");$("signal").textContent=sig==="UP"?"UP · ঊর্ধ্বমুখী সংকেত":sig==="DOWN"?"DOWN · নিম্নমুখী সংকেত":"WAIT · ট্রেড এড়িয়ে চলুন";
+$("reason").textContent="কারণ: "+why.join(" · ")+". স্কোর: "+score+". একাধিক টাইমফ্রেমে যাচাই করুন; ক্যান্ডেল বন্ধ হওয়ার আগে সিদ্ধান্ত নেবেন না।";
+};
+$("log").onclick=()=>{history.unshift({s:lastSignal,time:new Date().toLocaleString("bn-BD"),r:$("rsi").value,t:$("trend").value,m:$("macd").value});renderLogs();};
+$("clear").onclick=()=>{history=[];renderLogs();};
+function renderLogs(){$("logCount").textContent="লগে "+history.length+"টি সিগন্যাল";$("logs").innerHTML=history.slice(0,30).map(x=>`<div style="padding:8px 0;border-bottom:1px solid #26364e">${x.time} — <b>${x.s}</b> · RSI ${x.r} · ${x.t} · ${x.m}</div>`).join("");}
+</script></body></html>
